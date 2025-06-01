@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { FiFilter, FiX, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { PropertyFilter, SortOption } from "@/lib/types";
 
@@ -14,6 +14,10 @@ interface FilterSidebarProps {
 }
 
 const FilterSidebar = ({ onFilterChange, onSortChange, initialFilters = {}, initialSort = "price-desc", totalProperties }: FilterSidebarProps) => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<PropertyFilter>(initialFilters);
   const [sortOption, setSortOption] = useState<SortOption>(initialSort as SortOption);
@@ -26,6 +30,60 @@ const FilterSidebar = ({ onFilterChange, onSortChange, initialFilters = {}, init
     propertyType: true,
     status: true,
   });
+
+  // Initialize filters from URL parameters on component mount
+  useEffect(() => {
+    const urlFilters: PropertyFilter = {};
+
+    // Extract filters from URL
+    const minPrice = searchParams.get("minPrice");
+    const maxPrice = searchParams.get("maxPrice");
+    const bedrooms = searchParams.get("bedrooms");
+    const bathrooms = searchParams.get("bathrooms");
+    const propertyType = searchParams.get("propertyType");
+    const status = searchParams.get("status");
+    const sort = searchParams.get("sort");
+
+    if (minPrice) urlFilters.minPrice = Number(minPrice);
+    if (maxPrice) urlFilters.maxPrice = Number(maxPrice);
+    if (bedrooms) urlFilters.bedrooms = Number(bedrooms);
+    if (bathrooms) urlFilters.bathrooms = Number(bathrooms);
+    if (propertyType) urlFilters.propertyType = propertyType;
+    if (status) urlFilters.status = status;
+
+    // Set filters and sort from URL if they exist
+    if (Object.keys(urlFilters).length > 0) {
+      setFilters(urlFilters);
+      onFilterChange(urlFilters);
+    }
+
+    if (sort && sort !== sortOption) {
+      setSortOption(sort as SortOption);
+      onSortChange(sort as SortOption);
+    }
+  }, [searchParams, onFilterChange, onSortChange, sortOption]);
+
+  // Update URL with current filters and sort
+  const updateURL = (newFilters: PropertyFilter, newSort: SortOption) => {
+    const params = new URLSearchParams();
+
+    // Add filters to URL params
+    if (newFilters.minPrice) params.set("minPrice", newFilters.minPrice.toString());
+    if (newFilters.maxPrice) params.set("maxPrice", newFilters.maxPrice.toString());
+    if (newFilters.bedrooms) params.set("bedrooms", newFilters.bedrooms.toString());
+    if (newFilters.bathrooms) params.set("bathrooms", newFilters.bathrooms.toString());
+    if (newFilters.propertyType) params.set("propertyType", newFilters.propertyType);
+    if (newFilters.status) params.set("status", newFilters.status);
+
+    // Add sort to URL params
+    if (newSort !== "price-desc") {
+      params.set("sort", newSort);
+    }
+
+    // Update the URL without causing a page refresh
+    const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+    router.replace(newUrl);
+  };
 
   // Toggle filter sidebar on mobile
   const toggleSidebar = () => {
@@ -43,14 +101,22 @@ const FilterSidebar = ({ onFilterChange, onSortChange, initialFilters = {}, init
   // Handle filter changes
   const handleFilterChange = (key: keyof PropertyFilter, value: string | number | undefined) => {
     const newFilters = { ...filters, [key]: value };
+
+    // Remove undefined values to keep URL clean
+    if (value === undefined) {
+      delete newFilters[key];
+    }
+
     setFilters(newFilters);
     onFilterChange(newFilters);
+    updateURL(newFilters, sortOption);
   };
 
   // Handle sort changes
   const handleSortChange = (value: SortOption) => {
     setSortOption(value);
     onSortChange(value);
+    updateURL(filters, value);
   };
 
   // Clear all filters
@@ -58,6 +124,7 @@ const FilterSidebar = ({ onFilterChange, onSortChange, initialFilters = {}, init
     const emptyFilters = {};
     setFilters(emptyFilters);
     onFilterChange(emptyFilters);
+    updateURL(emptyFilters, sortOption);
   };
 
   return (
