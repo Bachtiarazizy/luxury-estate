@@ -24,7 +24,7 @@ const Footer = () => {
         <div className="relative container mx-auto px-4 lg:px-6">
           {/* Main Footer Content */}
           <div className="py-16 lg:py-20">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-24">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-20">
               {/* Company Info - Takes more space */}
               <div className="lg:col-span-5">
                 <div className="mb-6">
@@ -65,7 +65,7 @@ const Footer = () => {
 
               {/* Navigation Links */}
               <div className="lg:col-span-2">
-                <h4 className="text-lg font-semibold mb-6 text-white">Navigation</h4>
+                <h4 className="text-medium font-semibold mb-6 text-white">Navigation</h4>
                 <ul className="space-y-3">
                   <FooterLink href="/" label="Home" />
                   <FooterLink href="/properties" label="Properties" />
@@ -78,7 +78,7 @@ const Footer = () => {
 
               {/* Property Types */}
               <div className="lg:col-span-2">
-                <h4 className="text-lg font-semibold mb-6 text-white">Property Types</h4>
+                <h4 className="text-medium font-semibold mb-6 text-white">Property Types</h4>
                 <ul className="space-y-3">
                   <FooterLink href="/properties?type=luxury-homes" label="Luxury Homes" />
                   <FooterLink href="/properties?type=penthouses" label="Penthouses" />
@@ -90,7 +90,7 @@ const Footer = () => {
 
               {/* Contact Info */}
               <div className="lg:col-span-3">
-                <h4 className="text-lg font-semibold mb-6 text-white">Contact Info</h4>
+                <h4 className="text-medium font-semibold mb-6 text-white">Contact Info</h4>
                 <ul className="space-y-4">
                   <li className="flex items-start group">
                     <div className="flex-shrink-0 mt-1 mr-3 w-5 h-5 rounded-full bg-blue-600/20 flex items-center justify-center">
